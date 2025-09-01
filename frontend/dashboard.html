@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+  
+.row > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  flex: 1;
+}
+
+
+.card-body {
+  padding: 1rem;
+}
+
+.search-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.search-container input,
+.search-container select,
+.search-container button {
+  flex: 1;
+  min-width: 150px;
+}
+
+
+#statusChart, #timelineChart {
+  max-height: 200px; 
+}
+
+
+.table-sm th, 
+.table-sm td {
+  padding: 0.5rem;
+}
+
+.container-fluid {
+  padding: 20px;
+}
+
+
+.card {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border-radius: 10px;
+}
+
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">📈 Job Tracker</a>
+      <div class="d-flex">
+        <button id="viewProfileBtn" class="btn btn-outline-light">👤 View Profile</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <!-- SEARCH BAR -->
+    <div class="search-container">
+      <input type="text" id="searchTitle" placeholder="Search by Title" class="form-control">
+      <select id="searchStatus" class="form-select">
+        <option value="">All Status</option>
+        <option value="Applied">Applied</option>
+        <option value="Interviewed">Interview</option>
+        <option value="Offered">Offer</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+      <input type="date" id="startDate" class="form-control">
+      <input type="date" id="endDate" class="form-control">
+      <button class="btn btn-primary" onclick="searchApplications()">🔍 Search</button>
+    </div>
+    <div id="searchResults"></div>
+
+    <div class="row">
+      <!-- LEFT COLUMN -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card mb-3">
+          <div class="card-header">📊 Application Progress</div>
+          <div class="card-body text-center">
+            <canvas id="statusChart"></canvas>
+            <canvas id="timelineChart" class="mt-4"></canvas>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">🏢 Add Company</div>
+          <div class="card-body">
+            <form id="companyForm">
+              <input type="text" id="companyformName" placeholder="Company Name" class="form-control mb-2" required>
+              <input type="text" id="companyWebsite" placeholder="Website" class="form-control mb-2">
+              <input type="text" id="companyIndustry" placeholder="Industry" class="form-control mb-2">
+              <textarea id="companyDescription" placeholder="Description" class="form-control mb-2"></textarea>
+              <button class="btn btn-primary w-100">Add Company</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">🔔 Set a Reminder</div>
+          <div class="card-body">
+            <form id="reminderForm">
+              <div class="mb-3">
+                <label>Job Application</label>
+                <select id="jobAppId" class="form-select" required></select>
+              </div>
+              <div class="mb-3">
+                <label>Reminder Date & Time</label>
+                <input type="datetime-local" id="reminderDate" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label>Message</label>
+                <textarea id="reminderMessage" class="form-control"></textarea>
+              </div>
+              <button type="submit" class="btn btn-success w-100">Set Reminder</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIDDLE COLUMN -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card mb-3">
+          <div class="card-header">📝 Log a Job Application</div>
+          <div class="card-body">
+            <form id="jobApplicationForm" enctype="multipart/form-data">
+              <input type="text" id="companyName" name="companyName" placeholder="Company Name" class="form-control mb-2" required>
+              <input type="text" id="jobTitle" name="jobTitle" placeholder="Job Title" class="form-control mb-2" required>
+              <input type="date" id="applicationDate" name="applicationDate" class="form-control mb-2" required>
+              <select id="status" name="status" class="form-select mb-2" required>
+                <option value="Applied">Applied</option>
+                <option value="Interviewed">Interviewed</option>
+                <option value="Offered">Offered</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+              <textarea id="notes" name="notes" placeholder="Notes" class="form-control mb-2"></textarea>
+              <input type="file" id="attachment" name="attachment" class="form-control mb-2">
+              <button type="submit" class="btn btn-primary w-100">Submit Application</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">🏢 All Companies</div>
+          <div class="card-body">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Website</th>
+                  <th>Industry</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody id="companyList"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-lg-4 col-md-12">
+        <div class="card mb-3">
+          <div class="card-header">📄 Your Job Applications</div>
+          <div class="card-body">
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th>Attachment</th>
+                </tr>
+              </thead>
+              <tbody id="applicationList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">💼 All Job Listings</div>
+          <div class="card-body">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Title</th>
+                  <th>Location</th>
+                  <th>Link</th>
+                </tr>
+              </thead>
+              <tbody id="jobListingList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mt-3">
+          <div class="card-header">📌 Add Job Listing</div>
+          <div class="card-body">
+            <form id="jobListingForm">
+              <select id="companySelect" class="form-select mb-2" required></select>
+              <input type="text" id="joblistingTitle" placeholder="Job Title" class="form-control mb-2" required>
+              <input type="text" id="jobLocation" placeholder="Location" class="form-control mb-2">
+              <input type="text" id="jobLink" placeholder="Link" class="form-control mb-2">
+              <button class="btn btn-success w-100">Add Job Listing</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="profileForm">
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" id="profileName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" id="profileEmail" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Career Goals</label>
+              <textarea id="careerGoals" class="form-control"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Save Profile</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
