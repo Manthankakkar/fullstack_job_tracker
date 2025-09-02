@@ -1,6 +1,8 @@
 const API_BASE = "http://localhost:5000/api"; 
 const token = localStorage.getItem("token");
 
+console.log("Token in frontend:", token)
+
 // ================= JOB APPLICATION =================
 async function loadApplications() {
   try {
@@ -107,7 +109,7 @@ document.getElementById("reminderForm").addEventListener("submit", async e => {
 // ================= COMPANIES =================
 async function loadCompanies() {
   try {
-    const res = await axios.get(`${API_BASE}/companies`);
+    const res = await axios.get(`${API_BASE}/companies`,{headers: { Authorization: `Bearer ${token}` }});
     const companies = res.data.data;
     console.log("companies are",companies)
     const select = document.getElementById("companySelect");
@@ -143,7 +145,7 @@ document.getElementById("companyForm").addEventListener("submit", async (e) => {
     description: document.getElementById("companyDescription").value,
   };
   console.log("data is",data)
-  await axios.post(`${API_BASE}/companies`, data);
+  await axios.post(`${API_BASE}/companies`, data,{headers: { Authorization: `Bearer ${token}` }});
   alert("Company added!");
   loadCompanies();
   e.target.reset();
@@ -158,7 +160,7 @@ document.getElementById("jobListingForm").addEventListener("submit", async (e) =
     location: document.getElementById("jobLocation").value,
     link: document.getElementById("jobLink").value,
   };
-  await axios.post(`${API_BASE}/companies/job-listings`, data);
+  await axios.post(`${API_BASE}/companies/job-listings`, data,{headers: { Authorization: `Bearer ${token}` }});
   alert("Job listing added!");
   e.target.reset();
   displayJobListings();
@@ -166,7 +168,7 @@ document.getElementById("jobListingForm").addEventListener("submit", async (e) =
 
 async function displayJobListings() {
   try {
-    const res = await axios.get(`${API_BASE}/companies/job-listings`);
+    const res = await axios.get(`${API_BASE}/companies/job-listings`,{headers: { Authorization: `Bearer ${token}` }});
     const jobs = res.data.data;
     console.log("jobs are" ,jobs)
     const tbody = document.getElementById("jobListingList");
@@ -286,13 +288,20 @@ async function searchApplications() {
   });
 
   const data = res.data;
+  console.log("search data",data)
   const container = document.getElementById("searchResults");
   container.innerHTML = data.data.map(app => `
     <div class="card">
       <h3>${app.jobTitle}</h3>
-      <p>Company: ${app.Company?.name || "N/A"}</p>
+      <p>Company: ${app.companyName || "N/A"}</p>
       <p>Status: ${app.status}</p>
       <p>Date: ${new Date(app.createdAt).toLocaleDateString()}</p>
     </div>
   `).join("");
 }
+
+const logout=document.getElementById("logoutbutton")
+logout.addEventListener("click",()=>{
+    localStorage.removeItem("token")
+    window.location.href="login.html"
+})

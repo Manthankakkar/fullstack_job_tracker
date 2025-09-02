@@ -8,10 +8,19 @@ async function login() {
         message.textContent = "Login successful!";
         message.style.color = "lightgreen";
         localStorage.setItem('token', res.data.token)
-        window.location.href="dashboard.html";
-        // Redirect if needed
+        
+        setTimeout(()=>{
+          window.location.href="dashboard.html"
+
+        },1000);
+       
       } catch (err) {
         message.textContent = err.response?.data?.message || "Login failed!";
         message.style.color = "red";
+        
+        setTimeout(()=>{
+          window.location.href="login.html"
+
+        },1000)
       }
     }

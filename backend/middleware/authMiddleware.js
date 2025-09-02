@@ -18,6 +18,10 @@ const protect = async (req, res, next) => {
       if (!req.user) {
         return res.status(401).json({ message: "User not found" });
       }
+      console.log("Authorization Header:", req.headers.authorization);
+console.log("Decoded JWT:", decoded);
+console.log("User from DB:", req.user);
+
 
       next();
     } catch (error) {

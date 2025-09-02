@@ -32,7 +32,7 @@ connectDB();
 
 
 
-sequelize.sync({ alter: true }) 
+sequelize.sync() 
   .then(() => {
     console.log("✅ Models synced with database.");
     require("./cron/reminderCron");

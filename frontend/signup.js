@@ -15,8 +15,16 @@ const form = document.getElementById('signupForm');
         });
         message.style.color = 'lime';
         message.textContent = 'Signup successful! You can now log in.';
+
+        setTimeout(()=>{
+          window.location.href="login.html"
+        },1000)
       } catch (error) {
         message.style.color = 'red';
         message.textContent = error.response?.data?.message || 'Something went wrong!';
+        setTimeout(()=>{
+          window.location.href="signup.html"
+        },1000)
+        
       }
     });

@@ -1,22 +1,90 @@
+// const Company = require("../models/Company");
+// const JobListing = require("../models/JobListing");
+
+// exports.createCompany = async (req, res) => {
+//   try {
+//     const {name, website, industry, description} = req.body;
+//     console.log(req.body)
+    
+//     const company = await Company.create({ name, website, industry, description });
+//     res.status(201).json({ success: true, data: company });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: "Failed to create company", error });
+//   }
+// };
+
+
+// exports.getAllCompanies = async (req, res) => {
+//   try {
+//     const companies = await Company.findAll({ order: [["createdAt", "DESC"]] });
+//     res.json({ success: true, data: companies });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: "Failed to fetch companies", error });
+//   }
+// };
+
+
+
+// // Create Job Listing under a company
+// exports.createJobListing = async (req, res) => {
+//   try {
+//     const { companyId, title, location, link } = req.body;
+//     const job = await JobListing.create({ companyId, title, location, link });
+//     res.status(201).json({ success: true, data: job });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: "Failed to create job listing", error });
+//   }
+// };
+
+// // Get all job listings with company info
+// exports.getAllJobListings = async (req, res) => {
+//   try {
+//     const jobs = await JobListing.findAll({
+//       include: [{ model: Company }],
+//       order: [["createdAt", "DESC"]],
+//     });
+//     res.json({ success: true, data: jobs });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: "Failed to fetch job listings", error });
+//   }
+// };
+
+
 const Company = require("../models/Company");
 const JobListing = require("../models/JobListing");
 
+// Create Company
 exports.createCompany = async (req, res) => {
   try {
-    const {name, website, industry, description} = req.body;
-    console.log(req.body)
-    
-    const company = await Company.create({ name, website, industry, description });
+    const { name, website, industry, description } = req.body;
+    const userId = req.user.id; 
+   
+    console.log("User ID from req.user:", req.user?.id);
+
+    const company = await Company.create({
+      name,
+      website,
+      industry,
+      description,
+      userId, 
+    });
+
     res.status(201).json({ success: true, data: company });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to create company", error });
   }
 };
 
-
+// Get All Companies of logged-in user
 exports.getAllCompanies = async (req, res) => {
   try {
-    const companies = await Company.findAll({ order: [["createdAt", "DESC"]] });
+    const userId = req.user.id;
+
+    const companies = await Company.findAll({
+      where: { userId }, 
+      order: [["createdAt", "DESC"]],
+    });
+
     res.json({ success: true, data: companies });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to fetch companies", error });
@@ -24,25 +92,47 @@ exports.getAllCompanies = async (req, res) => {
 };
 
 
-
-// Create Job Listing under a company
 exports.createJobListing = async (req, res) => {
   try {
     const { companyId, title, location, link } = req.body;
-    const job = await JobListing.create({ companyId, title, location, link });
+    const userId = req.user.id;
+
+
+    const company = await Company.findOne({ where: { id: companyId, userId } });
+    if (!company) {
+      return res.status(403).json({ success: false, message: "Not authorized to add jobs to this company" });
+    }
+
+    const job = await JobListing.create({
+      companyId,
+      title,
+      location,
+      link,
+      userId,
+    });
+
     res.status(201).json({ success: true, data: job });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to create job listing", error });
   }
 };
 
-// Get all job listings with company info
+// Get all job listings (only for logged-in user)
 exports.getAllJobListings = async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const jobs = await JobListing.findAll({
-      include: [{ model: Company }],
+      where: { userId }, // Only user's jobs
+      include: [
+        {
+          model: Company,
+          where: { userId }, // Ensure company also belongs to the user
+        },
+      ],
       order: [["createdAt", "DESC"]],
     });
+
     res.json({ success: true, data: jobs });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to fetch job listings", error });
