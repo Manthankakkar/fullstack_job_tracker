@@ -1,5 +1,5 @@
 const Reminder = require("../models/Reminder");
-const JobApplication = require("../models/JobApplication");
+const JobApplication = require("../models/jobApplication");
 const User = require("../models/User");
 const emailClient = require("../config/email");
 

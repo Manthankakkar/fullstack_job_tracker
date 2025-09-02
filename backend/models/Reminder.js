@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db");
 const User = require("./User");
-const JobApplication = require("./JobApplication");
+const JobApplication = require("./jobApplication");
 
 const Reminder = sequelize.define("Reminder", {
   reminderDate: {

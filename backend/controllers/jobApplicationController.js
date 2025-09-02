@@ -1,4 +1,4 @@
-const JobApplication = require("../models/JobApplication");
+const JobApplication = require("../models/jobApplication");
 const Company  = require("../models/Company");
 const { Op } = require("sequelize");
 

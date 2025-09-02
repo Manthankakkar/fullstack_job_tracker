@@ -18,7 +18,7 @@ router.delete("/:id", protect, deleteJobApplication);
 
 router.get("/search", protect, searchApplications)
 
-const JobApplication = require("../models/JobApplication");
+const JobApplication = require("../models/jobApplication");
 
 
 
