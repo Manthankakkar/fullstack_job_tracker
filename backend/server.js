@@ -29,19 +29,19 @@ app.use("/api/companies", companyRoutes);
 
 app.get("/", (req, res) => {
 
-res.sendFile(path.join(__dirname, "signup.html"));
+res.sendFile(path.join(__dirname,"../frontend" ,"signup.html"));
 
 });
 
 app.get("/login.html", (req, res) => {
 
-res.sendFile(path.join(__dirname, "login.html"));
+res.sendFile(path.join(__dirname,"../frontend", "login.html"));
 
 });
 
 app.get("/dashboard.html", (req, res) => {
 
-res.sendFile(path.join(__dirname, "dashboard.html"));
+res.sendFile(path.join(__dirname,"../frontend" ,"dashboard.html"));
 
 });
 
