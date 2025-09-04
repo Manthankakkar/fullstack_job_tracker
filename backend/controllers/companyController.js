@@ -53,7 +53,7 @@
 const Company = require("../models/Company");
 const JobListing = require("../models/JobListing");
 
-// Create Company
+
 exports.createCompany = async (req, res) => {
   try {
     const { name, website, industry, description } = req.body;
@@ -75,7 +75,7 @@ exports.createCompany = async (req, res) => {
   }
 };
 
-// Get All Companies of logged-in user
+
 exports.getAllCompanies = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -117,17 +117,17 @@ exports.createJobListing = async (req, res) => {
   }
 };
 
-// Get all job listings (only for logged-in user)
+
 exports.getAllJobListings = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const jobs = await JobListing.findAll({
-      where: { userId }, // Only user's jobs
+      where: { userId },
       include: [
         {
           model: Company,
-          where: { userId }, // Ensure company also belongs to the user
+          where: { userId }, 
         },
       ],
       order: [["createdAt", "DESC"]],

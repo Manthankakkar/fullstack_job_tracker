@@ -26,6 +26,25 @@ app.use("/api/reminders", reminderRoutes);
 app.use("/api/companies", companyRoutes);
 
 
+app.get("/", (req, res) => {
+
+res.sendFile(path.join(__dirname, "signup.html"));
+
+});
+
+app.get("/login.html", (req, res) => {
+
+res.sendFile(path.join(__dirname, "views", "login.html"));
+
+});
+
+app.get("/dashboard.html", (req, res) => {
+
+res.sendFile(path.join(__dirname, "views", "expense.html"));
+
+});
+
+
 
 // Test DB connection
 connectDB();
