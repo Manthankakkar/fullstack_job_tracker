@@ -35,13 +35,13 @@ res.sendFile(path.join(__dirname, "signup.html"));
 
 app.get("/login.html", (req, res) => {
 
-res.sendFile(path.join(__dirname, "views", "login.html"));
+res.sendFile(path.join(__dirname, "login.html"));
 
 });
 
 app.get("/dashboard.html", (req, res) => {
 
-res.sendFile(path.join(__dirname, "views", "expense.html"));
+res.sendFile(path.join(__dirname, "dashboard.html"));
 
 });
 
